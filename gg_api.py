@@ -89,10 +89,7 @@ def main():
     year = sys.argv[1]
 
     hosts = get_hosts(year)
-    print('\nHost(s):', ', '.join(hosts))
-
     awards = get_awards(year)
-    print('\nAwards:\n\t', '\n\t'.join(awards), '\n')
 
     sorted_path = 'data/sorted_gg%s.json' % year
     if os.path.exists(sorted_path):
@@ -130,6 +127,24 @@ def main():
         json.dump(show, f)
     f.close()
 
+def view_results():
+    year = sys.argv[1]
+    with open('results/gg%s.json' % year, 'r') as f:
+        data = json.load(f)
+    f.close()
+    print('The %s Golden Globes' % year)
+    print('Host(s):', ', '.join(data['hosts']))
+    print('Awards:\n\t' + '\n\t'.join(data['awards']))
+    for award in data:
+        if award in ['hosts', 'awards']:
+            continue
+
+        print(award)
+        print('\tWinner:', data[award]['winner'])
+        print('\tNominees:', ', '.join(data[award]['nominees']))
+        print('\tPresenter:', data[award]['presenters'])
+
 if __name__ == '__main__':
     # pre_ceremony()
-    main()
+    # main()
+    view_results()
