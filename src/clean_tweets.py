@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from string import punctuation
 
 def clean_tweet(tkns):
+	# test
 	english_stop = set(stopwords.words('english'))
 	gg_stop = ['best', 'goldenglobes', '#goldenglobes', '#goldenglobe', 'golden', 'globes', 'globe']
 	twitter_stop = ['&amp;', 'rt']
