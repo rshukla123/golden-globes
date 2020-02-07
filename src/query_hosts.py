@@ -1,12 +1,10 @@
 import sys
 import json
-import pandas as pd
 import nltk
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
 sw = set(stopwords.words('english'))
-import string
-from collections import Counter
+from src import helpers
 
 def main(year):
 	with open('data/clean_gg' + year + '.json', 'r') as f:
@@ -14,13 +12,12 @@ def main(year):
 	f.close()
 
 	host_candidates = {}
-	tweets = [tweet.split() for tweet in set([' '.join(tweet) for tweet in all_tweets])]
+	tweets = [tweet.split() for tweet in set([' '.join(tweet['clean']) for tweet in all_tweets])]
 
 	print('\nSearching for hosts...')
 	size = len(tweets)
 	for n, tweet in enumerate(tweets):
-		prog = round((n/size) * 20)
-		print('\r|' + prog*'=' + (20 - prog)*' ' + '|', end='')
+		helpers.prog_print(n, size)
 
 		if not any([hw in tweet for hw in ['host', 'Host', 'hosts', 'Hosts']]):
 			continue

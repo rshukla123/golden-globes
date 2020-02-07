@@ -3,6 +3,7 @@ import sys
 import json
 
 from src import clean_tweets, sort_tweets, query_hosts, query_awards, process_tweets
+from src.queries import query_nominees_rahul
 
 '''Version 0.35'''
 
@@ -21,28 +22,40 @@ def get_awards(year):
     awards = query_awards.main(year)
     return awards
 
-def get_nominees(year):
+def get_nominees(year, winner):
     '''Nominees is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns.'''
-    with open('results/partial_gg%s.json' % year, 'r') as f:
-        data = json.load(f)
-    f.close()
+    if os.path.exists('results/partial_gg%s.json' % year):
+        with open('results/partial_gg%s.json' % year, 'r') as f:
+            data = json.load(f)
+        f.close()
+    else:
+        process_tweets.main(year, award_tweets, sw)
+
+    person_nominees = query_nominees_rahul.main(year, OFFICIAL_AWARDS_1315)
 
     nominees = {}
-    for award in data:
-        if award == 'hosts':
-            continue
-        nominees[award] = data[award]['nominees']
+    for award in OFFICIAL_AWARDS_1315:
+        is_person = any([title in award for title in ['actor', 'actress', 'director', 'screenplay', 'original', 'cecil']])
+        if is_person:
+            nominees[award] = person_nominees[award]
+        else:
+            nominees[award] = data[award]['nominees']
+        if winner not in nominees[award]:
+            nominees[award].append(winner)
     return nominees
 
 def get_winner(year):
     '''Winners is a dictionary with the hard coded award
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
-    with open('results/partial_gg%s.json' % year, 'r') as f:
-        data = json.load(f)
-    f.close()
+    if os.path.exists('results/partial_gg%s.json' % year):
+        with open('results/partial_gg%s.json' % year, 'r') as f:
+            data = json.load(f)
+        f.close()
+    else:
+        process_tweets.main(year, award_tweets, sw)
 
     winners = {}
     for award in data:
@@ -55,9 +68,12 @@ def get_presenters(year):
     '''Presenters is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns.'''
-    with open('results/partial_gg%s.json' % year, 'r') as f:
-        data = json.load(f)
-    f.close()
+    if os.path.exists('results/partial_gg%s.json' % year):
+        with open('results/partial_gg%s.json' % year, 'r') as f:
+            data = json.load(f)
+        f.close()
+    else:
+        process_tweets.main(year, award_tweets, sw)
 
     presenters = {}
     for award in data:
@@ -86,10 +102,14 @@ def main():
     and then run gg_api.main(). This is the second thing the TA will
     run when grading. Do NOT change the name of this function or
     what it returns.'''
-    year = sys.argv[1]
 
-    hosts = get_hosts(year)
-    awards = get_awards(year)
+    year = sys.argv[1]
+    print('Welcome to the %s Golden Globes!' % year)
+
+    # hosts = get_hosts(year)
+    # awards = get_awards(year)
+    hosts = []
+    awards = []
 
     sorted_path = 'data/sorted_gg%s.json' % year
     if os.path.exists(sorted_path):
@@ -115,8 +135,14 @@ def main():
     winners = get_winner(year)
     nominees = get_nominees(year)
     presenters = get_presenters(year)
-
-    for award in award_tweets:
+    # print(nominees.keys())
+    # print('-' * 40)
+    for award in OFFICIAL_AWARDS_1315:
+        # try:
+        #     print(nominees[award])
+        # except:
+        #     print(award)
+        #     continue
         show[award] = {
             'winner': winners[award],
             'nominees': nominees[award],

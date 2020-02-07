@@ -41,7 +41,7 @@ def main(year, awards):
 
 	print('\nSorting tweets...')
 	for tweet in data:
-		lower_tweet = set(map(lambda x: x.lower(), tweet))
+		lower_tweet = set(map(lambda x: x.lower(), tweet['clean']))
 		sorted = False
 		for award in awards:
 			clean_award = clean_awards[award]

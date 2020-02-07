@@ -13,17 +13,25 @@ def main(tweets, award, sw, is_person):
 	if is_person:
 		low, high = 2, 3
 	else:
-		low, high = 1, 6
+		low, high = 1, 3
 	tkn_award = tokenizer().tokenize(award)
 
 	for tweet in tweets:
 		trash = True
-		lower_tweet = [x.lower() for x in tweet]
-		if any([s in tweet for s in nominee_sw]):
+		lower_tweet = [x.lower() for x in tweet['clean']]
+		if any([s in lower_tweet for s in nominee_sw]):
+			lower_raw = [tkn.lower() for tkn in tweet['raw']]
 			clean_tweet = [tkn for tkn in lower_tweet if all([tkn not in stop for stop in [sw, nominee_sw, tkn_award]])]
+
 			for i in range(low, high):
 				for phrase in helpers.ngrams(clean_tweet, i):
-					name = ' '.join(phrase)
+					front = lower_raw.index(phrase[0])
+					back = lower_raw.index(phrase[-1]) + 1
+					if is_person and back - front != i:
+						continue
+
+					name = ' '.join(lower_raw[front:back])
+
 					if name in award:
 						continue
 					if name in nominee_candidates:
